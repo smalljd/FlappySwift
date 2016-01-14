@@ -7,8 +7,9 @@
 //
 
 import SpriteKit
+import WatchConnectivity
 
-class GameScene: SKScene, SKPhysicsContactDelegate{
+class GameScene: SKScene, SKPhysicsContactDelegate, WCSessionDelegate {
     let verticalPipeGap = 150.0
     
     var bird:SKSpriteNode!
@@ -21,6 +22,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
     var canRestart = Bool()
     var scoreLabelNode:SKLabelNode!
     var score = NSInteger()
+    var session: WCSession?
     
     let birdCategory: UInt32 = 1 << 0
     let worldCategory: UInt32 = 1 << 1
@@ -28,6 +30,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
     let scoreCategory: UInt32 = 1 << 3
     
     override func didMoveToView(view: SKView) {
+        
+        if WCSession.isSupported() {
+            session = WCSession.defaultSession()
+            session!.delegate = self
+            session!.activateSession()
+        }
         
         canRestart = false
         
@@ -139,6 +147,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         
     }
     
+    func session(session: WCSession, didReceiveMessage message: [String : AnyObject]) {
+//        print("Message recieved. \(message)")
+        dispatch_async(dispatch_get_main_queue(), {
+            self.tapTheBird()
+        })
+    }
+    
     func spawnPipes() {
         let pipePair = SKNode()
         pipePair.position = CGPoint( x: self.frame.size.width + pipeTextureUp.size().width * 2, y: 0 )
@@ -202,19 +217,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         // Restart animation
         moving.speed = 1
     }
-    override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
+    
+    func tapTheBird() {
         /* Called when a touch begins */
         if moving.speed > 0  {
-            for touch: AnyObject in touches {
-                let location = touch.locationInNode(self)
-                
-                bird.physicsBody?.velocity = CGVector(dx: 0, dy: 0)
-                bird.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 30))
-                
-            }
+            bird.physicsBody?.velocity = CGVector(dx: 0, dy: 0)
+            bird.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 30))
         } else if canRestart {
             self.resetScene()
         }
+    }
+    
+    override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
+        tapTheBird()
     }
     
     // TODO: Move to utilities somewhere. There's no reason this should be a member function
