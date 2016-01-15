@@ -9,10 +9,12 @@
 import WatchKit
 import Foundation
 import WatchConnectivity
+import CoreMotion
 
 class InterfaceController: WKInterfaceController, WCSessionDelegate {
 
     var session = WCSession.defaultSession()
+    var motionManager = CMMotionManager()
     
     override func awakeWithContext(context: AnyObject?) {
         super.awakeWithContext(context)
@@ -24,6 +26,19 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
     override func willActivate() {
         // This method is called when watch view controller is about to be visible to user
         super.willActivate()
+        if motionManager.accelerometerAvailable {
+            motionManager.accelerometerUpdateInterval = 0.1
+            motionManager.startAccelerometerUpdatesToQueue(NSOperationQueue.mainQueue(), withHandler: { (data, error) -> Void in
+                guard let data = data else {
+                    return
+                }
+                
+                if data.acceleration.y > 1.0 {
+                    print("fly bitch!: \(data.acceleration.y)")
+                    self.flyButtonTapped()
+                }
+            })
+        }
     }
 
     override func didDeactivate() {

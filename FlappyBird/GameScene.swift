@@ -8,6 +8,7 @@
 
 import SpriteKit
 import WatchConnectivity
+import CoreMotion
 
 class GameScene: SKScene, SKPhysicsContactDelegate, WCSessionDelegate {
     let verticalPipeGap = 150.0
@@ -31,6 +32,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, WCSessionDelegate {
     
     override func didMoveToView(view: SKView) {
         
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("tapTheBird"), name: "FlyObserverNotification", object: nil)
         if WCSession.isSupported() {
             session = WCSession.defaultSession()
             session!.delegate = self
@@ -148,7 +150,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, WCSessionDelegate {
     }
     
     func session(session: WCSession, didReceiveMessage message: [String : AnyObject]) {
-//        print("Message recieved. \(message)")
+        print("Message recieved. \(message)")
         dispatch_async(dispatch_get_main_queue(), {
             self.tapTheBird()
         })

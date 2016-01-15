@@ -8,6 +8,7 @@
 
 import UIKit
 import SpriteKit
+import CoreMotion
 
 extension SKNode {
     class func unarchiveFromFile(file : String) -> SKNode? {
@@ -30,10 +31,13 @@ extension SKNode {
 }
 
 class GameViewController: UIViewController {
-
+    
+    let motionManager = CMMotionManager()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
+        
         if let scene = GameScene.unarchiveFromFile("GameScene") as? GameScene {
             // Configure the view.
             let skView = self.view as! SKView
