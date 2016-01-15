@@ -34,7 +34,7 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
                 }
                 
                 if data.acceleration.y > 1.0 {
-                    print("fly bitch!: \(data.acceleration.y)")
+                    print("Acceleration rate: \(data.acceleration.y)")
                     self.flyButtonTapped()
                 }
             })
